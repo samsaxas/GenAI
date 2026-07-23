@@ -1,0 +1,2 @@
+ML is subset of AI which learns the pattern to predict the future. 
+Big Data handles large data, stores and process! XGBOOST is apopular algorithm in ML
