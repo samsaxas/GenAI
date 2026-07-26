@@ -1,0 +1,24 @@
+I'm ok. ASAP. @@@@
+python is a high ****level object oriented dynamically typed interpreted structural as well as programming language
+ language
+python is a highlevel#### objectoriented 🧡❤❤❤💙💙💚💚💛💛❣💔🕳🕳💫💫💨💨dynamically typed interpreted programming language
+
+
+open file and return a stream raise oserror$$$$$ upon failure
+
+file is either a text or byte string giving the name and the path
+if the file isnt in the current working directory of the file to
+be opened or an integer file descriptor of the file to be
+wrapped if a file descriptor is given it is closed when the
+returned io object is closed unless closefd is set to false
+
+mode is an optional string that specifies the mode in which the file
+is opened it defaults to r which means open for reading in text
+mode other common values are w for writing truncating the file if
+it already exists x for creating and writing to a new file and
+a for appending which on some unix systems means that all writes
+append to the end of the file regardless of the current seek position
+in text mode if encoding is not specified the encoding used is platform
+dependent localegetencoding is called to get the current locale encoding
+for reading and writing raw bytes use binary mode and leave encoding
+unspecified the available modes are

@@ -1,0 +1,63 @@
+Hello Everyone!! 👋😊
+
+I'm Sam, and I've been learnng Natural Language Processing (NLP) for almost 2 years. Honestly, it's amazng! 🚀❤️
+
+Yesterday, I visitted OpenAI's website at https://openai.com and also checked https://python.org for Python documentation. I've also used LangChain, PyTorch, TensorFlow, HuggingFace, and SpaCy for building AI applications.
+
+You can contact me at Sam.Example123@gmail.com or office_email@test-company.co.in.
+My phone numbers are +91-9876543210 and (080)-2345-6789.
+
+Today's date is 25/07/2026, and my employee ID is EMP#A-1024.
+The project budget is $2,500.75 (approximately ₹2,15,000).
+
+I don't think AI is replacing humans—it isn't! Instead, it's helping people become more productive. You're going to love learning it because it's practical and exciting.
+
+My favourite sentence is:
+"Machine Learning isn't magic; it's mathematics, statistics, and lots of data."
+
+Some common spelling mistakes:
+machne learnng
+artificail inteligence
+langauge processng
+retrival augmnted generation
+sentimant analyssis
+speling corection
+
+Programming languages I know:
+Python, Java, SQL, HTML, CSS, JavaScript, C++, and R.
+
+Here are some abbreviations:
+AI, ML, NLP, LLM, RAG, API, CPU, GPU, SQL, HTML.
+
+Random symbols:
+@OpenAI #MachineLearning #AI #Python
+$ % ^ & * ( ) _ + = { } [ ] | \ : ; " ' < > , . ? / ~ `
+
+HTML Example:
+<div class="container">
+    <h1>Welcome to NLP!</h1>
+    <p>This is a sample paragraph for preprocessing.</p>
+</div>
+
+Unicode characters:
+café naïve résumé jalapeño São Paulo München français
+
+Multiple      spaces      are       present here.
+
+Tabs		are		also		included.
+
+Blank lines follow.
+
+
+
+
+This paragraph is intentionally written with MIXED Case Letters so that LOWERCASE conversion can be demonstrated properly.
+
+Emoji examples:
+😊 😂 🤔 😍 😢 👍 🎉 💯 🔥 🚀 ❤️ 🌍
+
+I absolutely LOVE Python!! 😍🔥
+Python is soooo coool!!! 😄😄
+But sometims debugging can be frustating 😭😫
+
+Let's build smarter AI systems together!!
