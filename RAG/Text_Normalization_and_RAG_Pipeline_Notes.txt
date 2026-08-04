@@ -1,0 +1,265 @@
+Text Normalization and RAG Pipeline Notes
+
+1. Input Text
+
+The pipeline begins with raw text collected from a document, webpage,
+PDF, or user input.
+
+Example: “I’m learning Machine Learning! 😊 It’s amazing, isn’t it??”
+
+------------------------------------------------------------------------
+
+2. Text Normalization
+
+a. Convert to Lowercase
+
+Method: text.lower()
+
+Purpose: Converts all characters to lowercase so that “Machine” and
+“machine” are treated as the same word.
+
+Example: Before: I’m Learning Machine Learning!
+
+After: i’m learning machine learning!
+
+------------------------------------------------------------------------
+
+b. Expand Contractions
+
+Method: contractions.fix(text)
+
+Purpose: Expands shortened words into their complete form.
+
+Examples: can’t -> cannot I’m -> I am it’s -> it is don’t -> do not
+
+------------------------------------------------------------------------
+
+c. Remove Extra Spaces
+
+Method: re.sub(r’‘,’ ’, text)
+
+Purpose: Replaces multiple consecutive spaces with a single space.
+
+Example: “Machine Learning”
+
+becomes
+
+“Machine Learning”
+
+------------------------------------------------------------------------
+
+d. Remove Emojis
+
+Method: emoji.replace_emoji(text, replace=’’)
+
+Purpose: Removes emojis because they usually do not contribute to
+semantic retrieval.
+
+Example: “I love AI 🤖❤️”
+
+becomes
+
+“I love AI”
+
+------------------------------------------------------------------------
+
+e. Remove Special Characters and Punctuation
+
+Method: re.sub(r’[^0-9a-zA-Z\s]‘,’ ’, text)
+
+Purpose: Keeps only alphabets, numbers, and spaces.
+
+Example: “AI!!! #ML @Python”
+
+becomes
+
+“AI ML Python”
+
+------------------------------------------------------------------------
+
+f. Spelling Correction
+
+Method: TextBlob(text).correct()
+
+Purpose: Corrects misspelled words before embedding.
+
+Example: Machne Learnng
+
+becomes
+
+Machine Learning
+
+------------------------------------------------------------------------
+
+3. NLP Preprocessing
+
+Load spaCy Model
+
+Method: spacy.load(“en_core_web_sm”)
+
+Purpose: Loads the English language model.
+
+------------------------------------------------------------------------
+
+Tokenization
+
+Method: tokens = nlp(text)
+
+Purpose: Splits the sentence into tokens.
+
+Example: Machine learning is useful.
+
+Tokens: Machine learning is useful .
+
+------------------------------------------------------------------------
+
+Remove Stopwords
+
+Method: if not token.is_stop
+
+Purpose: Removes common words such as: is the a an of to for
+
+------------------------------------------------------------------------
+
+Lemmatization
+
+Method: token.lemma_
+
+Purpose: Converts words into their root form.
+
+Examples: running -> run studies -> study better -> good
+
+------------------------------------------------------------------------
+
+Join Tokens
+
+Method: ’ ’.join(updated_tokens)
+
+Purpose: Converts the processed tokens back into a single string.
+
+Example: machine learn useful
+
+------------------------------------------------------------------------
+
+4. Text Chunking
+
+Method: RecursiveCharacterTextSplitter( chunk_size=100, chunk_overlap=20
+)
+
+Purpose: Splits long text into overlapping chunks.
+
+Why overlap? Important information near chunk boundaries is preserved.
+
+Example
+
+Chunk 1: Machine learning is a subset of AI…
+
+Chunk 2: …subset of AI that allows systems…
+
+------------------------------------------------------------------------
+
+5. Create Documents
+
+Method: splitter.create_documents([text])
+
+Purpose: Converts chunks into LangChain Document objects.
+
+Each Document contains: - page_content - metadata
+
+------------------------------------------------------------------------
+
+6. Embedding Generation
+
+Method: HuggingFaceEmbeddings(
+model_name=“sentence-transformers/all-MiniLM-L6-v2” )
+
+Purpose: Converts every chunk into a dense numerical vector.
+
+Example: “Machine Learning”
+
+↓
+
+[0.231, -0.782, 0.441, …]
+
+These vectors capture semantic meaning.
+
+------------------------------------------------------------------------
+
+7. Build Vector Database
+
+Method: FAISS.from_documents()
+
+Purpose: Stores all embeddings in a FAISS vector index for fast
+similarity search.
+
+Each stored item contains: - Document - Embedding Vector
+
+------------------------------------------------------------------------
+
+8. User Query
+
+Example: “What is Machine Learning?”
+
+The query is also cleaned using the same normalization steps before
+retrieval.
+
+------------------------------------------------------------------------
+
+9. Similarity Search
+
+Method: vectordb.similarity_search(query, k=3)
+
+Purpose: Finds the top-k chunks whose embeddings are closest to the
+query embedding.
+
+Output: Relevant Document objects.
+
+------------------------------------------------------------------------
+
+10. Extract Retrieved Text
+
+Method: chunk.page_content
+
+Purpose: Reads the text stored in each retrieved document.
+
+Duplicate chunks can be removed using: set()
+
+The retrieved chunks are combined using: ‘’.join()
+
+------------------------------------------------------------------------
+
+11. Prompt Construction
+
+The retrieved context and user query are combined into a prompt.
+
+Example:
+
+Context: Machine learning is a subset of Artificial Intelligence.
+
+Question: What is machine learning?
+
+Instruction: Answer in a structured manner.
+
+------------------------------------------------------------------------
+
+12. Generate Response
+
+Method: ChatGoogleGenerativeAI(…)
+
+response = llm_model.invoke(prompt)
+
+Purpose: Sends the prompt to Gemini and generates a structured answer.
+
+The generated text is obtained using: response.content
+
+------------------------------------------------------------------------
+
+Complete Pipeline
+
+Raw Text ↓ lower() ↓ contractions.fix() ↓ Remove Extra Spaces ↓ Remove
+Emojis ↓ Remove Special Characters ↓ TextBlob Spelling Correction ↓
+spaCy Tokenization ↓ Stopword Removal ↓ Lemmatization ↓ Join Tokens ↓
+RecursiveCharacterTextSplitter ↓ create_documents() ↓
+HuggingFaceEmbeddings ↓ FAISS.from_documents() ↓ User Query ↓
+similarity_search() ↓ Retrieved Chunks ↓ Prompt Creation ↓ Gemini
+(invoke()) ↓ Structured Answer

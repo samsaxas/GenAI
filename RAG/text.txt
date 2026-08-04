@@ -1,0 +1,474 @@
+01_Python_FAISS_HuggingFace_RAG.ipynb
+02_LangChain_FAISS_RAG.ipynb
+03_LangChain_Advanced_RAG.ipynb
+
+
+Part 4: Steps 46–66 (Reference code, simplified retrieval function, Hugging Face generation)
+
+
+
+
+
+
+
+
+| Step                       | `rag_architecture(11).ipynb` (Manual FAISS)                                                                                                                                                                | `rag_architecture copy(6).ipynb` (LangChain FAISS)                                                    | `rag_architecture copy 2(3).ipynb`                                                   | Difference                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Import Libraries**       | `SentenceTransformer`, `faiss`, `spacy`                                                                                                                                                                    | `GoogleGenerativeAIEmbeddings`, `FAISS`, `ChatGoogleGenerativeAI`                                     | Same as copy(6)                                                                      | LangChain notebook replaces manual FAISS and embedding classes.                     |
+| **Remove Statement Label** | `data = re.sub('machine learning statement \d+\:', '', data)`                                                                                                                                              | Same                                                                                                  | `data = re.sub(r'\d+\:', '', data)`                                                  | Copy 2 removes only numbers (`1:`) instead of the complete label.                   |
+| **Chunk Size**             | `python splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=40)`                                                                                                                       | Same                                                                                                  | `python splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=20)` | Copy 2 creates smaller chunks with less overlap.                                    |
+| **Chunk Creation**         | `python chunks = list(set(splitter.split_text(data)))`                                                                                                                                                     | `python chunks = splitter.create_documents([data])`                                                   | Same as copy(6)                                                                      | Manual notebook stores **strings**. LangChain notebook stores **Document** objects. |
+| **View Chunk**             | Not required                                                                                                                                                                                               | `python print(chunks[0])`<br>`python print(chunks[0].page_content)`                                   | Same                                                                                 | LangChain uses `Document.page_content`.                                             |
+| **Metadata**               | Not available                                                                                                                                                                                              | `python chunks[0].metadata={'file_name':'data.txt'}`                                                  | Same                                                                                 | Metadata exists only in LangChain `Document` objects.                               |
+| **Embedding Model**        | `python embedding_model = SentenceTransformer("sentence-transformers/all-miniLM-L6-V2")`<br>`python chunk_embeddings = embedding_model.encode(chunks).astype("float32")`                                   | `python embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-miniLM-L6-V2")` | Same                                                                                 | Manual notebook generates embeddings explicitly. LangChain does it internally.      |
+| **Vector Database**        | `python dimension = chunk_embeddings.shape[1]`<br>`python faiss.normalize_L2(chunk_embeddings)`<br>`python index_faiss_db = faiss.IndexFlatIP(dimension)`<br>`python index_faiss_db.add(chunk_embeddings)` | `python vector_db = FAISS.from_documents(documents=chunks, embedding=embedding_model)`                | Same                                                                                 | LangChain automatically creates embeddings and the FAISS index.                     |
+| **User Query**             | Inside `r_search()`                                                                                                                                                                                        | `python user_query = "What is Machine Learning"`                                                      | Same                                                                                 | LangChain demonstrates querying directly.                                           |
+| **Similarity Search**      | `python distance,index = index_faiss_db.search(query_embedding,k=k)`                                                                                                                                       | `python r_chunks = vector_db.similarity_search(user_query)`                                           | Same                                                                                 | Manual uses FAISS search. LangChain wraps it with `similarity_search()`.            |
+| **Retrieved Output**       | `python R_chunks = [chunks[i] for i in index[0]]`                                                                                                                                                          | `python for chunk in r_chunks: updated_r_chunks.add(chunk.page_content)`                              | Same                                                                                 | Manual returns strings; LangChain returns `Document` objects.                       |
+| **Merge Context**          | `python R_str=' '.join(R_chunks)`                                                                                                                                                                          | `python R_text='\n'.join(updated_r_chunks)`                                                           | Same                                                                                 | LangChain extracts `page_content` before joining.                                   |
+| **Retrieval Function**     | `python def r_search(query,k=2):`<br>Uses manual embedding + FAISS search                                                                                                                                  | `python def r_search(query,k=2):`<br>Uses `vector_db.similarity_search()`                             | Copy 2 contains both manual and Hugging Face versions                                | LangChain greatly simplifies retrieval.                                             |
+| **Generation**             | Hugging Face API (commented/reference)                                                                                                                                                                     | Gemini/Hugging Face reference (mostly commented)                                                      | Adds `print(g_response[0]['text'])` and a `# generation part` section                | Copy 2 includes additional generation reference code.                               |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This is how I want to structure it
+📘 Volume 1: Understanding RAG from Absolute Zero
+Chapter 1 – Before Writing Any Code
+
+We'll answer questions like:
+
+What is a program?
+What happens when we run a Python file?
+What is memory?
+What is a variable?
+Where does the data live?
+
+We'll use simple diagrams like:
+
+Hard Disk
+    │
+    ▼
+Python reads file
+    │
+    ▼
+RAM (Memory)
+    │
+    ▼
+Variable
+
+No programming jargon without explanation.
+
+Chapter 2 – What Problem Are We Solving?
+
+Instead of jumping into code, we'll ask:
+
+Suppose I have a 500-page PDF.
+
+How can an AI answer questions about it?
+
+We'll discover why RAG exists.
+
+Chapter 3 – The Entire RAG Pipeline
+
+We'll look at the complete journey first.
+
+User asks question
+        │
+        ▼
+Read document
+        │
+        ▼
+Clean text
+        │
+        ▼
+Split into chunks
+        │
+        ▼
+Convert chunks into vectors
+        │
+        ▼
+Store vectors
+────────────────────────────
+User asks question
+        │
+        ▼
+Convert question into vector
+        │
+        ▼
+Find similar chunks
+        │
+        ▼
+Send chunks to LLM
+        │
+        ▼
+Generate answer
+
+This chapter gives the "big picture" before any code.
+
+Chapter 4 – Reading the File
+
+Not just:
+
+open(...)
+
+We'll answer:
+
+What is a file?
+What is encoding?
+What happens inside open()?
+Why with open()?
+Why UTF-8?
+Chapter 5 – Cleaning the Text
+
+We'll explain every preprocessing step:
+
+Lowercase
+Emoji removal
+Contractions
+Punctuation
+Special characters
+Lemmatization
+
+For each step we'll answer:
+
+Why do we need it?
+What happens if we skip it?
+What changes before and after?
+Chapter 6 – Chunking
+
+Instead of saying
+
+RecursiveCharacterTextSplitter divides text.
+
+We'll explain:
+
+Imagine a 500-page book.
+
+Can we send it to ChatGPT?
+
+No.
+
+Why?
+
+What are token limits?
+
+Why 500 characters?
+
+Why overlap?
+
+Why recursive splitting?
+
+Chapter 7 – Embeddings
+
+This will probably be the biggest chapter.
+
+We'll answer:
+
+What is an embedding?
+
+Why convert text into numbers?
+
+Why not compare words directly?
+
+What is a vector?
+
+What is vector dimension?
+
+Why do similar meanings have similar vectors?
+
+We'll draw diagrams instead of relying on equations.
+
+Chapter 8 – FAISS
+
+We'll explain:
+
+Why can't Python search 10,000 chunks one by one?
+
+What is indexing?
+
+Why is FAISS fast?
+
+What is cosine similarity?
+
+What is L2 distance?
+
+What is nearest neighbor search?
+
+Chapter 9 – Retrieval
+
+We'll trace every line of your r_search() function.
+
+For example:
+
+query_embedding = embedding_model.encode(query)
+
+We'll answer:
+
+What object calls encode()?
+What does it return?
+What is stored in memory?
+What is the shape?
+Why astype('float32')?
+Why reshape(1,-1)?
+Why normalize?
+Why search?
+Why top-k?
+Chapter 10 – APIs
+
+This chapter will explain everything you've been asking recently.
+
+Topics include:
+
+Internet
+Client
+Server
+HTTP
+URL
+REST API
+JSON
+Request
+Response
+GET
+POST
+Headers
+Authorization
+Bearer Token
+API Key
+Environment Variables
+
+Then we'll answer:
+
+What actually happens when Python executes:
+
+requests.post(...)
+
+We'll literally follow the request across the internet.
+
+Chapter 11 – requests vs OpenAI Client
+
+We'll compare:
+
+Manual HTTP request
+
+vs
+
+client.chat.completions.create(...)
+
+We'll explain why both work.
+
+Chapter 12 – LLM Generation
+
+We'll explain:
+
+How the prompt is created.
+
+Why retrieved chunks are added.
+
+What Hugging Face receives.
+
+What DeepSeek receives.
+
+What comes back.
+
+How JSON becomes a Python dictionary.
+
+Chapter 13 – Reading Your Notebook Line by Line
+
+Finally, we'll open your notebook.
+
+We'll explain every single line.
+
+Not just:
+
+This imports FAISS.
+
+Instead:
+
+Why do we import FAISS?
+
+What would happen if we removed it?
+
+Why is it here?
+
+What object is created?
+
+Where is it stored?
+
+Who uses it later?
+
+Chapter 14 – Comparing All Three Notebooks
+
+We'll compare:
+
+Notebook 1
+
+↓
+
+Notebook 2
+
+↓
+
+Notebook 3
+
+We'll identify:
+
+what changed,
+why it changed,
+which approach is simpler,
+which approach gives more control.
+Every chapter will have the same format
+
+For every concept, we'll cover:
+
+The problem
+Why this step is needed
+What happens inside the computer
+The Python code
+What each line does
+What each variable stores
+What the output looks like
+What happens next
+Common mistakes
+Interview/Viva questions
+Language
+
+I won't assume you already know terms like:
+
+API
+HTTP
+Header
+SDK
+Payload
+Vector
+Client
+Server
+
+Every term will be introduced only when it's needed, and in plain English first.
+
+
+
+For example, instead of starting with:
+
+"An API is an Application Programming Interface..."
+
+I'll start with:
+
+"Imagine you want to order food from a restaurant using your phone. Your phone needs a way to tell the restaurant what you want. An API plays a similar role for software—it lets one program ask another program for something."
+
+Only after the intuition is clear will I introduce the technical definition.
+
+
+
+
+
+
+
+
+
+
+Every chapter will have the same format
+
+For every concept, we'll cover:
+
+The problem
+Why this step is needed
+What happens inside the computer
+The Python code
+What each line does
+What each variable stores
+What the output looks like
+What happens next
+Common mistakes
+Interview/Viva questions
+
+
+
+📘 Book 1: rag_architecture.ipynb (Foundation)
+
+This will be the main book.
+
+We'll explain every cell in execution order.
+
+For every line of code, we'll answer:
+
+What problem are we solving?
+Why is this step needed?
+What happens inside the computer?
+What does each variable store?
+What is the data type?
+What changes before and after this step?
+Which library performs the work?
+Why was that library chosen?
+What happens if we remove this step?
+What happens next?
+
+Cell 1
+│
+├── Why are these libraries imported?
+├── What is each library?
+├── Which object does it create?
+├── Does it occupy memory?
+├── Which later cells depend on it?
+└── What happens if we remove it?
+
+
+📘 Book 2: Comparison with Notebook 2
+
+Instead of explaining everything again, we'll ask:
+
+What changed?
+
+For every changed cell:
+
+What was in Notebook 1?
+What is in Notebook 2?
+Why was it changed?
+Is it better?
+What complexity was removed?
+What new abstraction was introduced?
+
+Notebook 1
+SentenceTransformer
+
+↓
+
+Notebook 2
+HuggingFaceEmbeddings
+
+We'll explain why.
+
+
+📘 Book 3: Comparison with Notebook 3
+
+Again,
+
+What changed?
+
+We'll explain:
+
+New functions
+Removed code
+Better architecture
+Better retrieval
+Better API usage
+Better LangChain usage
+
+By then you'll already know the fundamentals, so this book will be much shorter.
