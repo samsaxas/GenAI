@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arraylore &mdash; Learn NumPy, pandas, Matplotlib &amp; Seaborn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --paper:#F6F4EE;
+  --paper-dim:#EBE7DC;
+  --ink:#1C1B17;
+  --ink-soft:#5B584F;
+  --ink-faint:#928E80;
+  --amber:#C9781E;
+  --amber-deep:#A5610F;
+  --amber-soft:#F0D9AF;
+  --line: rgba(28,27,23,0.12);
+  --radius: 3px;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --sidebar-w: 280px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--amber-soft); color:var(--ink);}
+a{color:inherit;}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; margin:0; letter-spacing:-0.01em;}
+code, pre, .mono{font-family:var(--font-mono);}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--ink-faint); border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-soft);}
+
+/* ============ TOPBAR (mobile) ============ */
+.topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+}
+.topbar .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+.burger{
+  width:38px; height:38px; border-radius:var(--radius); border:1px solid var(--line);
+  background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer;
+}
+.burger span{width:18px; height:2px; background:var(--ink); display:block; transition:transform .25s ease, opacity .25s ease;}
+.burger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.burger.open span:nth-child(2){opacity:0;}
+.burger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+/* ============ LAYOUT ============ */
+.shell{display:flex; min-height:100vh;}
+
+/* ============ SIDEBAR ============ */
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  border-right:1px solid var(--line);
+  padding:26px 18px 60px;
+  background:var(--paper);
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+  padding:0 8px 22px; margin-bottom:16px; border-bottom:1px solid var(--line);
+}
+.brand .mark{
+  width:30px; height:30px; border-radius:var(--radius);
+  background:var(--ink); color:var(--amber-soft);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:0.75rem; font-weight:600;
+  position:relative; overflow:hidden;
+}
+.brand .mark::after{
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(201,120,30,0.35) 6px, rgba(201,120,30,0.35) 7px);
+  animation: scan 3.5s linear infinite;
+}
+@keyframes scan{ from{transform:translateX(-30%);} to{transform:translateX(30%);} }
+
+.search-box{
+  display:flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  padding:9px 10px; margin-bottom:18px;
+  background:var(--paper-dim);
+}
+.search-box input{
+  border:none; background:transparent; outline:none; width:100%;
+  font-family:var(--font-body); font-size:0.85rem; color:var(--ink);
+}
+.search-box svg{flex-shrink:0; opacity:0.55;}
+
+.lib-group{margin-bottom:6px;}
+.lib-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  width:100%; text-align:left; padding:9px 8px; margin-top:10px;
+  background:transparent; border:none; cursor:pointer; border-radius:var(--radius);
+  font-family:var(--font-display); font-weight:600; font-size:0.86rem;
+  color:var(--ink); text-transform:uppercase; letter-spacing:0.05em;
+}
+.lib-toggle .dot{width:8px; height:8px; border-radius:50%; margin-right:8px; flex-shrink:0;}
+.lib-toggle .label{display:flex; align-items:center;}
+.lib-toggle .chev{transition:transform .25s ease; opacity:0.6;}
+.lib-toggle[aria-expanded="false"] .chev{transform:rotate(-90deg);}
+.lib-toggle:hover{background:var(--paper-dim);}
+
+.topic-list{
+  list-style:none; margin:2px 0 4px; padding:0 0 0 6px;
+  border-left:1px solid var(--line);
+  overflow:hidden;
+  max-height:2000px;
+  transition:max-height .35s ease;
+}
+.topic-list.collapsed{max-height:0;}
+.topic-list li a{
+  display:block; padding:6.5px 12px; margin-left:2px;
+  font-size:0.83rem; color:var(--ink-soft); text-decoration:none;
+  border-radius:0 var(--radius) var(--radius) 0;
+  border-left:2px solid transparent; margin-left:-1px;
+  transition:background .18s ease, color .18s ease, border-color .18s ease;
+}
+.topic-list li a:hover{background:var(--paper-dim); color:var(--ink);}
+.topic-list li a.active{
+  color:var(--amber-deep); border-left-color:var(--amber); font-weight:600; background:var(--paper-dim);
+}
+
+/* ============ MAIN ============ */
+.main{flex:1; min-width:0;}
+.hero{
+  position:relative; overflow:hidden;
+  padding:76px 60px 64px;
+  border-bottom:1px solid var(--line);
+  background:var(--ink);
+  color:var(--paper);
+}
+.hero-inner{position:relative; z-index:2; max-width:760px;}
+.hero .eyebrow{
+  font-family:var(--font-mono); font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--amber-soft); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+}
+.hero .eyebrow::before{content:''; width:22px; height:1px; background:var(--amber-soft); display:inline-block;}
+.hero h1{
+  font-size:clamp(2.1rem, 4.4vw, 3.4rem); line-height:1.08; color:var(--paper); margin-bottom:20px;
+}
+.hero h1 em{font-style:normal; color:var(--amber-soft);}
+.hero p{font-size:1.05rem; color:rgba(246,244,238,0.72); max-width:600px; margin-bottom:28px;}
+.hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:0.9rem;
+  padding:11px 20px; border-radius:var(--radius); cursor:pointer;
+  border:1px solid transparent; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+  transition:transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.btn-primary{background:var(--amber); color:var(--ink);}
+.btn-primary:hover{transform:translateY(-2px); background:var(--amber-soft);}
+.btn-ghost{border-color:rgba(246,244,238,0.35); color:var(--paper);}
+.btn-ghost:hover{transform:translateY(-2px); border-color:var(--amber-soft); color:var(--amber-soft);}
+
+/* Signature animated array grid in hero */
+.array-field{
+  position:absolute; right:-40px; top:50%; transform:translateY(-50%);
+  display:grid; grid-template-columns:repeat(6, 34px); grid-auto-rows:34px; gap:6px;
+  z-index:1; opacity:0.9;
+}
+.array-field .cell{
+  width:34px; height:34px; border-radius:2px;
+  background:rgba(246,244,238,0.06);
+  border:1px solid rgba(246,244,238,0.09);
+  font-family:var(--font-mono); font-size:0.62rem; color:rgba(246,244,238,0.35);
+  display:flex; align-items:center; justify-content:center;
+  animation: pulse-cell 5.2s ease-in-out infinite;
+}
+@keyframes pulse-cell{
+  0%, 100%{ background:rgba(246,244,238,0.06); border-color:rgba(246,244,238,0.09); color:rgba(246,244,238,0.35);}
+  50%{ background:rgba(201,120,30,0.28); border-color:rgba(201,120,30,0.55); color:var(--amber-soft);}
+}
+@media (max-width:900px){ .array-field{display:none;} }
+
+.stats-row{
+  display:flex; gap:34px; padding:22px 60px; flex-wrap:wrap;
+  border-bottom:1px solid var(--line); background:var(--paper-dim);
+}
+.stat b{display:block; font-family:var(--font-display); font-size:1.5rem;}
+.stat span{font-size:0.78rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;}
+
+.content{padding:10px 60px 100px; max-width:900px;}
+
+.lib-heading{
+  padding:56px 0 6px; margin-top:26px;
+  border-top:1px solid var(--line);
+  scroll-margin-top:20px;
+}
+.lib-heading:first-of-type{border-top:none;}
+.lib-heading .kicker{
+  font-family:var(--font-mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--amber-deep); margin-bottom:6px; display:block;
+}
+.lib-heading h2{font-size:2rem;}
+.lib-heading p{color:var(--ink-soft); max-width:640px; margin-top:10px;}
+
+.topic{
+  padding:38px 0; border-top:1px solid var(--line);
+  scroll-margin-top:24px;
+  opacity:0; transform:translateY(14px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+.topic.in-view{opacity:1; transform:translateY(0);}
+.topic .idx{
+  font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-faint);
+}
+.topic h3{font-size:1.4rem; margin:6px 0 14px;}
+
+.tag-row{display:flex; gap:8px; margin:14px 0 4px; flex-wrap:wrap;}
+.tag{
+  font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em;
+  padding:3px 9px; border:1px solid var(--line); border-radius:20px; color:var(--ink-soft);
+}
+
+.block-label{
+  font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em;
+  color:var(--ink-faint); margin:20px 0 8px;
+}
+.definition{font-size:0.98rem; color:var(--ink);}
+.usecase{
+  font-size:0.95rem; color:var(--ink-soft); background:var(--paper-dim);
+  border-left:2px solid var(--amber); padding:12px 16px; border-radius:0 var(--radius) var(--radius) 0;
+}
+
+.syntax{
+  font-family:var(--font-mono); font-size:0.85rem; background:var(--paper-dim);
+  border:1px solid var(--line); padding:12px 16px; border-radius:var(--radius);
+  overflow-x:auto; white-space:pre;
+}
+
+.code-wrap{position:relative; margin-top:8px;}
+pre.code{
+  font-family:var(--font-mono); font-size:0.84rem; line-height:1.65;
+  background:var(--ink); color:#EFE8D6;
+  padding:18px 18px 16px; border-radius:var(--radius); overflow-x:auto;
+  margin:0;
+}
+pre.code .c1{color:#8A8676;} /* comment */
+pre.code .out{color:var(--amber-soft);}
+.copy-btn{
+  position:absolute; top:10px; right:10px;
+  font-family:var(--font-body); font-size:0.72rem; font-weight:600;
+  background:rgba(246,244,238,0.08); color:#EFE8D6; border:1px solid rgba(246,244,238,0.18);
+  padding:6px 10px; border-radius:var(--radius); cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+  transition:background .18s ease, border-color .18s ease;
+}
+.copy-btn:hover{background:rgba(201,120,30,0.25); border-color:var(--amber);}
+.copy-btn.copied{background:var(--amber); color:var(--ink); border-color:var(--amber);}
+
+footer{
+  padding:40px 60px 70px; border-top:1px solid var(--line);
+  font-size:0.85rem; color:var(--ink-soft);
+}
+
+/* progress bar */
+.progress{
+  position:fixed; top:0; left:0; height:3px; background:var(--amber); z-index:100; width:0%;
+  transition:width .1s linear;
+}
+@media (min-width:901px){ .progress{left:var(--sidebar-w);} }
+
+/* back to top */
+.totop{
+  position:fixed; bottom:26px; right:26px; z-index:70;
+  width:44px; height:44px; border-radius:50%;
+  background:var(--ink); color:var(--amber-soft);
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transform:translateY(10px);
+  transition:opacity .25s ease, transform .25s ease;
+}
+.totop.show{opacity:1; pointer-events:auto; transform:translateY(0);}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:900px){
+  .topbar{display:flex;}
+  .sidebar{
+    position:fixed; left:0; top:0; height:100%; z-index:55;
+    transform:translateX(-100%); transition:transform .3s ease;
+    box-shadow:0 0 40px rgba(0,0,0,0.25);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:50;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .hero{padding:46px 22px 40px;}
+  .stats-row{padding:18px 22px; gap:22px;}
+  .content{padding:6px 22px 80px;}
+  footer{padding:30px 22px 60px;}
+  .progress{left:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progressBar"></div>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">[]</span> Arraylore</div>
+  <button class="burger" id="burgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><span class="mark">[]</span> Arraylore</div>
+    <div class="search-box">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Filter topics…">
+    </div>
+    <nav id="navRoot"></nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <div class="array-field" id="arrayField"></div>
+      <div class="hero-inner">
+        <span class="eyebrow">numpy · pandas · matplotlib · seaborn</span>
+        <h1>Learn the Python <em>data stack</em>,<br>one array at a time.</h1>
+        <p>Straight-to-the-point notes on the four libraries behind almost every data science workflow &mdash; definitions, exact syntax, and runnable examples with real use cases, in one reference.</p>
+        <div class="hero-ctas">
+          <a href="#numpy-intro" class="btn btn-primary">Start with NumPy →</a>
+          <a href="#pandas-intro" class="btn btn-ghost">Jump to pandas</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats-row">
+      <div class="stat"><b>49</b><span>Topics covered</span></div>
+      <div class="stat"><b>4</b><span>Core libraries</span></div>
+      <div class="stat"><b>100%</b><span>Copyable code</span></div>
+      <div class="stat"><b>1</b><span>Reference page</span></div>
+    </div>
+
+    <div class="content" id="content"></div>
+
+    <footer>
+      Arraylore &mdash; built as a quick-reference companion to the official NumPy, pandas, Matplotlib and Seaborn documentation. Notes are condensed for learning; consult the official docs for exhaustive API detail.
+    </footer>
+  </main>
+</div>
+
+<button class="totop" id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+/* ======================================================================
+   CONTENT DATA
+   ====================================================================== */
+const LIBS = [
+{
+  id:'numpy', name:'NumPy', color:'#C9781E',
+  intro:'The foundational package for numerical computing in Python. NumPy provides the fast, memory-efficient n-dimensional array (ndarray) that pandas, Matplotlib, seaborn, and most of the scientific Python stack are built on top of.',
+  topics:[
+    {
+      id:'numpy-intro', title:'Introduction to NumPy',
+      def:'NumPy (Numerical Python) is a library that provides a high-performance multidimensional array object, <code>ndarray</code>, along with tools for working with these arrays. Unlike Python lists, arrays store elements of one fixed dtype in contiguous memory, which lets NumPy run vectorized operations in compiled C code instead of slow Python loops.',
+      syntax:'import numpy as np',
+      code:`import numpy as np
+
+print(np.__version__)      <span class="c1"># check the installed version</span>`,
+      use:'Real-time use case: every numerical pipeline &mdash; from loading sensor readings to building a neural network with plain Python &mdash; starts with "import numpy as np" because higher-level libraries like pandas and scikit-learn pass NumPy arrays under the hood.'
+    },
+    {
+      id:'numpy-create', title:'Creating Arrays',
+      def:'Arrays can be created from Python sequences, or generated directly using NumPy\'s built-in constructors for zeros, ones, ranges, and evenly spaced values.',
+      syntax:`np.array(object)
+np.zeros(shape)
+np.ones(shape)
+np.full(shape, value)
+np.arange(start, stop, step)
+np.linspace(start, stop, num)
+np.eye(n)`,
+      code:`a = np.array([1, 2, 3])              <span class="c1"># from a list</span>
+b = np.zeros((2, 3))                  <span class="c1"># 2x3 array of 0.0</span>
+c = np.ones((3,))                     <span class="c1"># [1. 1. 1.]</span>
+d = np.arange(0, 10, 2)               <span class="c1"># [0 2 4 6 8]</span>
+e = np.linspace(0, 1, 5)              <span class="c1"># 5 evenly spaced values 0..1</span>
+f = np.eye(3)                         <span class="c1"># 3x3 identity matrix</span>`,
+      use:'Real-time use case: <code>np.linspace</code> is the standard way to generate the x-axis values for plotting a smooth mathematical function, e.g. sampling 100 points to plot a sine curve.'
+    },
+    {
+      id:'numpy-attrs', title:'Array Attributes &amp; Dtypes',
+      def:'Every ndarray carries metadata describing its shape, dimensionality, size, and the data type of its elements. Knowing these attributes is essential before performing operations, since NumPy is strict about shape compatibility.',
+      syntax:`arr.ndim      <span class="c1"># number of dimensions</span>
+arr.shape     <span class="c1"># tuple of dimension sizes</span>
+arr.size      <span class="c1"># total number of elements</span>
+arr.dtype     <span class="c1"># data type of elements</span>
+arr.itemsize  <span class="c1"># bytes per element</span>`,
+      code:`arr = np.array([[1, 2, 3], [4, 5, 6]])
+print(arr.ndim)      <span class="out"># 2</span>
+print(arr.shape)     <span class="out"># (2, 3)</span>
+print(arr.size)      <span class="out"># 6</span>
+print(arr.dtype)     <span class="out"># int64</span>
+
+<span class="c1"># casting to a different dtype</span>
+floats = arr.astype(np.float32)`,
+      use:'Real-time use case: checking <code>.shape</code> before feeding a batch of images into a machine learning model prevents dimension-mismatch errors at training time.'
+    },
+    {
+      id:'numpy-index', title:'Indexing &amp; Slicing',
+      def:'NumPy supports Python-style indexing and slicing, extended to multiple dimensions using comma-separated indices instead of chained brackets.',
+      syntax:`arr[i]            <span class="c1"># single element (1D)</span>
+arr[i, j]         <span class="c1"># row i, column j (2D)</span>
+arr[start:stop:step]
+arr[:, 1]         <span class="c1"># all rows, column 1</span>`,
+      code:`arr = np.array([[10, 20, 30], [40, 50, 60]])
+
+print(arr[0, 2])     <span class="out"># 30</span>
+print(arr[:, 1])     <span class="out"># [20 50]  -&gt; whole column</span>
+print(arr[1, :2])    <span class="out"># [40 50]  -&gt; first 2 cols of row 1</span>
+print(arr[::-1])     <span class="c1"># reverse the rows</span>`,
+      use:'Real-time use case: slicing <code>image[:, :, 0]</code> pulls out just the red channel of an RGB image stored as a 3D NumPy array.'
+    },
+    {
+      id:'numpy-boolean', title:'Boolean &amp; Fancy Indexing',
+      def:'Boolean indexing selects elements using a condition that produces a same-shaped array of True/False values. Fancy indexing selects elements using an explicit array of integer indices.',
+      syntax:`arr[condition]
+arr[[i1, i2, i3]]
+np.where(condition, x, y)`,
+      code:`arr = np.array([5, 12, 8, 20, 3])
+
+mask = arr &gt; 10
+print(arr[mask])            <span class="out"># [12 20]</span>
+
+print(arr[[0, 3]])          <span class="out"># [5 20]  -&gt; fancy indexing</span>
+
+<span class="c1"># replace values conditionally</span>
+result = np.where(arr &gt; 10, 1, 0)   <span class="c1"># [0 1 0 1 0]</span>`,
+      use:'Real-time use case: filtering a NumPy array of daily temperatures to keep only readings above a threshold, e.g. <code>temps[temps &gt; 35]</code> to flag heatwave days.'
+    },
+    {
+      id:'numpy-reshape', title:'Reshaping Arrays',
+      def:'Reshaping changes how the same underlying data is viewed across dimensions, without copying the data (when possible). Related operations flatten, transpose, or resize arrays.',
+      syntax:`arr.reshape(new_shape)
+arr.ravel()      <span class="c1"># flatten, returns a view when possible</span>
+arr.flatten()    <span class="c1"># flatten, always returns a copy</span>
+arr.T            <span class="c1"># transpose</span>`,
+      code:`arr = np.arange(12)
+grid = arr.reshape(3, 4)     <span class="c1"># 3 rows x 4 cols</span>
+
+print(grid.T.shape)          <span class="out"># (4, 3)</span>
+print(grid.ravel())          <span class="c1"># back to 1D</span>
+
+<span class="c1"># -1 tells NumPy to infer that dimension</span>
+auto = arr.reshape(-1, 6)    <span class="c1"># shape becomes (2, 6)</span>`,
+      use:'Real-time use case: reshaping a flat array of 784 pixel values into a 28x28 grid to display or process a handwritten-digit image (MNIST dataset).'
+    },
+    {
+      id:'numpy-ops', title:'Arithmetic &amp; Broadcasting',
+      def:'NumPy applies arithmetic operators element-wise across arrays (vectorization). Broadcasting is the rule set that lets NumPy operate on arrays of different but compatible shapes without explicit loops or copies.',
+      syntax:`arr + arr2, arr - arr2, arr * arr2, arr / arr2
+arr + scalar          <span class="c1"># scalar broadcasts to every element</span>
+np.add(a, b), np.multiply(a, b)`,
+      code:`prices = np.array([100, 250, 80])
+tax_rate = 1.18                       <span class="c1"># scalar broadcasts</span>
+with_tax = prices * tax_rate          <span class="out"># [118. 295. 94.4]</span>
+
+matrix = np.ones((3, 3))
+row = np.array([1, 2, 3])
+print(matrix + row)                   <span class="c1"># row broadcasts across all 3 rows</span>`,
+      use:'Real-time use case: applying a single tax rate or currency conversion factor to an entire array of prices in one line, instead of looping row by row.'
+    },
+    {
+      id:'numpy-agg', title:'Aggregation Functions',
+      def:'Aggregations reduce an array to a summary statistic. The <code>axis</code> parameter controls whether the reduction runs across rows, columns, or the whole array.',
+      syntax:`arr.sum(), arr.mean(), arr.std(), arr.var()
+arr.min(), arr.max()
+arr.sum(axis=0)   <span class="c1"># column-wise</span>
+arr.sum(axis=1)   <span class="c1"># row-wise</span>`,
+      code:`scores = np.array([[80, 90, 70], [60, 85, 95]])
+
+print(scores.mean())          <span class="out"># 80.0 (overall)</span>
+print(scores.mean(axis=0))    <span class="out"># [70. 87.5 82.5]  per column</span>
+print(scores.max(axis=1))     <span class="out"># [90 95]  per row</span>
+print(scores.std())           <span class="c1"># standard deviation</span>`,
+      use:'Real-time use case: computing the average exam score per student (axis=1) versus the average per question (axis=0) from a single 2D results array.'
+    },
+    {
+      id:'numpy-sort', title:'Sorting &amp; Searching',
+      def:'NumPy can sort array values directly, or return the indices that would sort them (useful for keeping related arrays aligned), plus functions to locate values or extremes.',
+      syntax:`np.sort(arr)
+arr.argsort()
+np.argmax(arr), np.argmin(arr)
+np.where(condition)`,
+      code:`scores = np.array([70, 95, 60, 88])
+names  = np.array(['Ana', 'Ben', 'Cy', 'Di'])
+
+order = scores.argsort()[::-1]     <span class="c1"># indices, highest first</span>
+print(names[order])                <span class="out"># ['Ben' 'Di' 'Ana' 'Cy']</span>
+
+print(np.argmax(scores))           <span class="out"># 1 (index of Ben's top score)</span>`,
+      use:'Real-time use case: <code>argsort</code> keeps a "names" array aligned to a "scores" array so you can build a leaderboard sorted by score without losing the mapping.'
+    },
+    {
+      id:'numpy-stack', title:'Stacking &amp; Splitting',
+      def:'Multiple arrays can be combined along an axis (stacking/concatenation) or a single array can be broken into pieces (splitting).',
+      syntax:`np.concatenate([a, b], axis=0)
+np.vstack([a, b])   <span class="c1"># stack vertically (rows)</span>
+np.hstack([a, b])   <span class="c1"># stack horizontally (columns)</span>
+np.split(arr, n)`,
+      code:`a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+print(np.vstack([a, b]))
+<span class="c1"># [[1 2 3]
+#  [4 5 6]]</span>
+
+print(np.hstack([a, b]))     <span class="out"># [1 2 3 4 5 6]</span>
+
+parts = np.split(np.arange(9), 3)   <span class="c1"># 3 arrays of length 3</span>`,
+      use:'Real-time use case: stacking separate red, green, and blue 2D channel arrays with <code>np.dstack</code> to reconstruct a full RGB image array.'
+    },
+    {
+      id:'numpy-linalg', title:'Linear Algebra',
+      def:'The <code>np.linalg</code> submodule provides standard matrix operations &mdash; multiplication, inversion, determinants, and eigenvalues &mdash; used throughout statistics and machine learning.',
+      syntax:`a @ b  or  np.matmul(a, b)   <span class="c1"># matrix multiplication</span>
+np.linalg.inv(a)             <span class="c1"># inverse</span>
+np.linalg.det(a)             <span class="c1"># determinant</span>
+np.linalg.eig(a)             <span class="c1"># eigenvalues/vectors</span>
+np.dot(a, b)                 <span class="c1"># dot product</span>`,
+      code:`A = np.array([[2, 0], [0, 3]])
+B = np.array([[1, 2], [3, 4]])
+
+print(A @ B)              <span class="c1"># matrix multiplication</span>
+print(np.linalg.inv(A))   <span class="c1"># [[0.5 0.  ] [0.   0.33]]</span>
+print(np.linalg.det(A))   <span class="out"># 6.0</span>`,
+      use:'Real-time use case: solving a system of linear equations for a regression model\'s coefficients using <code>np.linalg.inv(X.T @ X) @ X.T @ y</code> (the normal equation).'
+    },
+    {
+      id:'numpy-random', title:'Random Module',
+      def:'<code>np.random</code> generates random numbers for simulations, sampling, and initializing model weights. A fixed seed makes random results reproducible.',
+      syntax:`np.random.seed(n)
+np.random.rand(shape)        <span class="c1"># uniform [0,1)</span>
+np.random.randint(low, high, size)
+np.random.normal(mean, std, size)
+np.random.choice(arr, size)`,
+      code:`np.random.seed(42)                     <span class="c1"># reproducible results</span>
+
+dice = np.random.randint(1, 7, size=5) <span class="c1"># 5 dice rolls</span>
+heights = np.random.normal(170, 8, 1000)  <span class="c1"># simulate 1000 heights (cm)</span>
+sample = np.random.choice(['A','B','C'], size=3)`,
+      use:'Real-time use case: generating a synthetic dataset to test a plotting or statistics function before real data is available, e.g. simulating 1,000 customer transaction amounts.'
+    },
+    {
+      id:'numpy-io', title:'File I/O',
+      def:'NumPy arrays can be saved to and loaded from disk in a compact binary format (.npy/.npz), or as plain text for interoperability.',
+      syntax:`np.save('file.npy', arr)
+np.load('file.npy')
+np.savetxt('file.csv', arr, delimiter=',')
+np.loadtxt('file.csv', delimiter=',')`,
+      code:`arr = np.arange(10).reshape(2, 5)
+
+np.save('data.npy', arr)          <span class="c1"># binary, fast, exact dtype</span>
+loaded = np.load('data.npy')
+
+np.savetxt('data.csv', arr, delimiter=',')  <span class="c1"># human-readable</span>`,
+      use:'Real-time use case: caching an expensive preprocessed feature matrix as a <code>.npy</code> file so a model training script doesn\'t have to recompute it on every run.'
+    }
+  ]
+},
+{
+  id:'pandas', name:'pandas', color:'#C9781E',
+  intro:'pandas is the standard library for tabular data in Python. It introduces two core structures &mdash; the one-dimensional Series and the two-dimensional DataFrame &mdash; built on top of NumPy, with labelled rows and columns for fast, expressive data wrangling.',
+  topics:[
+    {
+      id:'pandas-intro', title:'Introduction to pandas',
+      def:'pandas provides fast, flexible data structures designed to make working with labelled, tabular, and time-series data easy and intuitive. It is the go-to tool for cleaning, exploring, and transforming real-world datasets before analysis or modelling.',
+      syntax:'import pandas as pd',
+      code:`import pandas as pd
+
+print(pd.__version__)`,
+      use:'Real-time use case: nearly every data analysis in Python &mdash; from a marketing team\'s campaign spreadsheet to a scientist\'s experiment log &mdash; is loaded and cleaned in pandas before it is plotted or modelled.'
+    },
+    {
+      id:'pandas-series', title:'Series',
+      def:'A Series is a one-dimensional labelled array, essentially a single column of data with an associated index. It is the building block of a DataFrame.',
+      syntax:`pd.Series(data, index=labels)
+s[label]
+s.values
+s.index`,
+      code:`s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
+print(s['b'])       <span class="out"># 20</span>
+print(s.values)     <span class="out"># [10 20 30]</span>
+print(s * 2)        <span class="c1"># element-wise, keeps the index</span>`,
+      use:'Real-time use case: representing a single time-series metric, like daily website visits, indexed by date.'
+    },
+    {
+      id:'pandas-df-create', title:'Creating a DataFrame',
+      def:'A DataFrame is a two-dimensional labelled table of columns, each of which can hold a different dtype. It is most commonly built from a dictionary of lists, a list of dictionaries, or a NumPy array.',
+      syntax:`pd.DataFrame(dict_of_lists)
+pd.DataFrame(list_of_dicts)
+pd.DataFrame(numpy_array, columns=[...])`,
+      code:`data = {
+    'name':  ['Ana', 'Ben', 'Cy'],
+    'score': [88, 92, 79],
+    'city':  ['Delhi', 'Pune', 'Goa']
+}
+df = pd.DataFrame(data)
+print(df)
+<span class="c1">#    name  score   city
+# 0  Ana      88  Delhi
+# 1  Ben      92   Pune
+# 2  Cy       79    Goa</span>`,
+      use:'Real-time use case: converting a JSON API response (a list of dictionaries) directly into a DataFrame for immediate analysis.'
+    },
+    {
+      id:'pandas-io', title:'Reading &amp; Writing Data',
+      def:'pandas can read from and write to almost every common data format &mdash; CSV, Excel, JSON, SQL, and more &mdash; with a single function call.',
+      syntax:`pd.read_csv('file.csv')
+pd.read_excel('file.xlsx')
+pd.read_json('file.json')
+df.to_csv('out.csv', index=False)
+df.to_excel('out.xlsx', index=False)`,
+      code:`df = pd.read_csv('sales.csv')             <span class="c1"># load</span>
+df.to_csv('cleaned_sales.csv', index=False)   <span class="c1"># save, no row index column</span>
+
+excel_df = pd.read_excel('report.xlsx', sheet_name='Q1')`,
+      use:'Real-time use case: loading a raw sales export from Excel, cleaning it in pandas, then writing the cleaned version back out for a dashboard tool to consume.'
+    },
+    {
+      id:'pandas-inspect', title:'Inspecting Data',
+      def:'Before analysis, it\'s standard practice to preview a DataFrame\'s shape, structure, and summary statistics to understand what you\'re working with.',
+      syntax:`df.head(n)      <span class="c1"># first n rows, default 5</span>
+df.tail(n)      <span class="c1"># last n rows</span>
+df.info()       <span class="c1"># dtypes, non-null counts</span>
+df.describe()   <span class="c1"># summary statistics</span>
+df.shape        <span class="c1"># (rows, cols)</span>
+df.columns      <span class="c1"># column names</span>`,
+      code:`print(df.head(3))     <span class="c1"># quick peek</span>
+print(df.info())      <span class="c1"># column types + nulls</span>
+print(df.describe())  <span class="c1"># count, mean, std, min, quartiles, max</span>
+print(df.shape)       <span class="out"># (150, 4)</span>`,
+      use:'Real-time use case: running <code>df.info()</code> right after loading any new dataset to instantly spot missing values or a column that loaded as text instead of numbers.'
+    },
+    {
+      id:'pandas-select', title:'Selection: loc &amp; iloc',
+      def:'Columns are selected with square brackets. Rows and mixed row/column selection use <code>.loc</code> (label-based) or <code>.iloc</code> (integer-position-based).',
+      syntax:`df['col']            <span class="c1"># single column -&gt; Series</span>
+df[['col1','col2']]  <span class="c1"># multiple columns -&gt; DataFrame</span>
+df.loc[row_label, col_label]
+df.iloc[row_pos, col_pos]`,
+      code:`print(df['score'])            <span class="c1"># one column</span>
+print(df[['name','score']])   <span class="c1"># two columns</span>
+
+print(df.loc[0, 'name'])      <span class="c1"># label-based -&gt; 'Ana'</span>
+print(df.iloc[0, 1])          <span class="c1"># position-based -&gt; 88</span>
+print(df.loc[0:2, ['name','score']])  <span class="c1"># slice of rows + chosen cols</span>`,
+      use:'Real-time use case: pulling a single customer\'s row by their ID using <code>.loc[customer_id]</code> when the ID has been set as the DataFrame index.'
+    },
+    {
+      id:'pandas-filter', title:'Filtering Data',
+      def:'Rows are filtered by passing a boolean condition inside square brackets, or with the more readable <code>.query()</code> method.',
+      syntax:`df[df['col'] > value]
+df[(cond1) & (cond2)]     <span class="c1"># AND -&gt; use & not "and"</span>
+df[(cond1) | (cond2)]     <span class="c1"># OR</span>
+df[df['col'].isin([...])]
+df.query('col > value')`,
+      code:`high_scorers = df[df['score'] &gt; 85]
+
+filtered = df[(df['score'] &gt; 80) & (df['city'] == 'Pune')]
+
+in_cities = df[df['city'].isin(['Delhi', 'Goa'])]
+
+df.query('score &gt; 85 and city == "Pune"')  <span class="c1"># readable alternative</span>`,
+      use:'Real-time use case: filtering an orders table down to only the rows where <code>status == "delayed"</code> and <code>amount &gt; 1000</code> to flag high-value late shipments.'
+    },
+    {
+      id:'pandas-missing', title:'Handling Missing Data',
+      def:'Missing values appear as <code>NaN</code>. pandas provides methods to detect, drop, or fill them so downstream calculations aren\'t silently corrupted.',
+      syntax:`df.isna()  or  df.isnull()
+df.dropna()
+df.fillna(value)
+df.fillna(method='ffill')`,
+      code:`print(df.isna().sum())        <span class="c1"># count of missing values per column</span>
+
+clean = df.dropna()           <span class="c1"># drop any row with a NaN</span>
+filled = df.fillna(0)         <span class="c1"># replace NaN with 0</span>
+filled2 = df['score'].fillna(df['score'].mean())  <span class="c1"># fill with column mean</span>`,
+      use:'Real-time use case: filling missing "age" values in a survey dataset with the column median before running a statistical model that can\'t handle NaN.'
+    },
+    {
+      id:'pandas-groupby', title:'GroupBy',
+      def:'<code>groupby</code> implements the "split-apply-combine" pattern: split rows into groups by a key, apply an aggregation to each group, then combine the results into a new table.',
+      syntax:`df.groupby('col').agg_func()
+df.groupby('col')['other_col'].mean()
+df.groupby(['col1','col2']).agg({'col3':'sum'})`,
+      code:`by_city = df.groupby('city')['score'].mean()
+print(by_city)
+<span class="c1"># city
+# Delhi    88.0
+# Goa      79.0
+# Pune     92.0</span>
+
+summary = df.groupby('city').agg(
+    avg_score=('score', 'mean'),
+    count=('score', 'size')
+)`,
+      use:'Real-time use case: computing total revenue per product category from a raw transactions table with <code>df.groupby("category")["revenue"].sum()</code>.'
+    },
+    {
+      id:'pandas-merge', title:'Merging, Joining &amp; Concatenating',
+      def:'Multiple DataFrames are combined either by stacking them (<code>concat</code>) or by joining on a shared key column, similar to a SQL join (<code>merge</code>).',
+      syntax:`pd.concat([df1, df2])             <span class="c1"># stack rows (or cols with axis=1)</span>
+pd.merge(df1, df2, on='key', how='inner')
+<span class="c1"># how: 'inner', 'left', 'right', 'outer'</span>`,
+      code:`orders   = pd.DataFrame({'order_id':[1,2], 'cust_id':[101,102]})
+customers = pd.DataFrame({'cust_id':[101,102], 'name':['Ana','Ben']})
+
+merged = pd.merge(orders, customers, on='cust_id', how='left')
+
+stacked = pd.concat([df_jan, df_feb], ignore_index=True)  <span class="c1"># append rows</span>`,
+      use:'Real-time use case: joining an "orders" table with a "customers" table on <code>customer_id</code> to attach each order to a customer name and region.'
+    },
+    {
+      id:'pandas-pivot', title:'Pivot Tables',
+      def:'A pivot table reshapes long-format data into a summary grid, aggregating values by two categorical dimensions &mdash; the pandas equivalent of an Excel pivot table.',
+      syntax:`df.pivot_table(values='v', index='row_key', columns='col_key', aggfunc='mean')`,
+      code:`pivot = df.pivot_table(
+    values='score',
+    index='city',
+    columns='subject',
+    aggfunc='mean',
+    fill_value=0
+)`,
+      use:'Real-time use case: turning a long list of "date, region, sales" rows into a summary table with regions as rows, months as columns, and total sales as values.'
+    },
+    {
+      id:'pandas-sort', title:'Sorting',
+      def:'Rows can be sorted by one or more column values, or by the index itself.',
+      syntax:`df.sort_values('col', ascending=False)
+df.sort_values(['col1','col2'])
+df.sort_index()`,
+      code:`top = df.sort_values('score', ascending=False)
+multi = df.sort_values(['city', 'score'], ascending=[True, False])`,
+      use:'Real-time use case: sorting a leaderboard DataFrame by score descending before displaying the top 10 players.'
+    },
+    {
+      id:'pandas-apply', title:'Apply &amp; Map',
+      def:'<code>.apply()</code> runs a custom function along an axis of a DataFrame or over a Series; <code>.map()</code> applies an element-wise function or lookup dictionary to a Series.',
+      syntax:`series.map(func_or_dict)
+df['col'].apply(func)
+df.apply(func, axis=1)   <span class="c1"># row-wise across the DataFrame</span>`,
+      code:`df['grade'] = df['score'].map(lambda s: 'Pass' if s &gt;= 60 else 'Fail')
+
+df['bonus'] = df.apply(lambda row: row['score'] * 1.1 if row['city']=='Pune' else row['score'], axis=1)`,
+      use:'Real-time use case: creating a new "pass/fail" column from a numeric score column using a one-line lambda passed to <code>.map()</code>.'
+    },
+    {
+      id:'pandas-datetime', title:'String &amp; DateTime Handling',
+      def:'The <code>.str</code> accessor applies vectorized string methods to a text Series; <code>pd.to_datetime</code> parses dates, after which the <code>.dt</code> accessor extracts date parts.',
+      syntax:`df['col'].str.lower(), .str.contains('x'), .str.split('-')
+pd.to_datetime(df['col'])
+df['date'].dt.year, .dt.month, .dt.day_name()`,
+      code:`df['email'] = df['email'].str.lower()
+mask = df['name'].str.contains('an', case=False)
+
+df['date'] = pd.to_datetime(df['date'])
+df['month'] = df['date'].dt.month
+df['weekday'] = df['date'].dt.day_name()`,
+      use:'Real-time use case: converting a "signup_date" text column into real datetimes, then extracting the month to chart monthly user signups.'
+    },
+    {
+      id:'pandas-clean', title:'Cleaning: Rename, Drop &amp; Duplicates',
+      def:'Common cleanup operations rename columns, drop unneeded columns/rows, remove duplicate records, and convert dtypes.',
+      syntax:`df.rename(columns={'old':'new'})
+df.drop(columns=['col'])
+df.drop_duplicates()
+df.duplicated()
+df.astype({'col': 'int'})`,
+      code:`df = df.rename(columns={'nm':'name'})
+df = df.drop(columns=['unused_col'])
+df = df.drop_duplicates(subset=['email'])
+df['score'] = df['score'].astype(int)`,
+      use:'Real-time use case: removing duplicate customer sign-ups that share the same email address before counting unique users.'
+    }
+  ]
+},
+{
+  id:'matplotlib', name:'Matplotlib', color:'#C9781E',
+  intro:'Matplotlib is the foundational plotting library in Python. It offers fine-grained control over every element of a figure &mdash; axes, ticks, legends, colors &mdash; and underpins higher-level libraries like pandas\' plotting and seaborn.',
+  topics:[
+    {
+      id:'mpl-intro', title:'Introduction &amp; Anatomy of a Figure',
+      def:'A Matplotlib chart is built from a <b>Figure</b> (the whole canvas) containing one or more <b>Axes</b> (an individual plot with its own x/y scales). The object-oriented API (<code>fig, ax = plt.subplots()</code>) is the recommended approach for anything beyond a quick one-off plot.',
+      syntax:`import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()   <span class="c1"># figure + one axes</span>
+plt.show()`,
+      code:`import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.plot([1, 2, 3], [10, 20, 15])
+ax.set_title('Anatomy example')
+plt.show()`,
+      use:'Real-time use case: the object-oriented pattern (<code>fig, ax</code>) is what you use any time you need multiple subplots or want to save the figure programmatically inside a report-generation script.'
+    },
+    {
+      id:'mpl-line', title:'Basic Line Plot',
+      def:'<code>plot()</code> draws connected line segments (and optional markers) through a sequence of x, y points &mdash; the default chart type for continuous or time-series data.',
+      syntax:`ax.plot(x, y, color='...', linestyle='...', marker='...', label='...')`,
+      code:`import numpy as np
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+fig, ax = plt.subplots()
+ax.plot(x, y, color='#C9781E', linewidth=2, label='sin(x)')
+ax.legend()
+plt.show()`,
+      use:'Real-time use case: plotting a stock\'s closing price or a server\'s CPU usage over time.'
+    },
+    {
+      id:'mpl-subplots', title:'Figure &amp; Subplots',
+      def:'<code>plt.subplots(nrows, ncols)</code> creates a grid of Axes in one figure, returned as an array you can index to plot into each panel individually.',
+      syntax:`fig, axes = plt.subplots(nrows, ncols, figsize=(w, h))
+axes[0].plot(...)
+axes[0, 1].plot(...)   <span class="c1"># when grid is 2D</span>`,
+      code:`fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+axes[0].plot(x, np.sin(x))
+axes[0].set_title('Sine')
+
+axes[1].plot(x, np.cos(x))
+axes[1].set_title('Cosine')
+
+plt.tight_layout()
+plt.show()`,
+      use:'Real-time use case: placing a "before" and "after" chart side by side to visually compare model performance before and after tuning.'
+    },
+    {
+      id:'mpl-bar', title:'Bar Charts',
+      def:'Bar charts compare quantities across discrete categories using the height (or length, for horizontal bars) of rectangular bars.',
+      syntax:`ax.bar(categories, values)
+ax.barh(categories, values)   <span class="c1"># horizontal</span>`,
+      code:`cities = ['Delhi', 'Pune', 'Goa']
+sales  = [420, 310, 180]
+
+fig, ax = plt.subplots()
+ax.bar(cities, sales, color='#1C1B17')
+ax.set_ylabel('Sales (₹k)')
+plt.show()`,
+      use:'Real-time use case: comparing total quarterly revenue across five product lines.'
+    },
+    {
+      id:'mpl-scatter', title:'Scatter Plots',
+      def:'Scatter plots show individual data points on two numeric axes, useful for spotting relationships, clusters, or outliers between two variables.',
+      syntax:`ax.scatter(x, y, c=colors, s=sizes, alpha=0.7)`,
+      code:`height = np.random.normal(170, 8, 200)
+weight = height * 0.9 + np.random.normal(0, 5, 200)
+
+fig, ax = plt.subplots()
+ax.scatter(height, weight, alpha=0.6, color='#C9781E')
+ax.set_xlabel('Height (cm)'); ax.set_ylabel('Weight (kg)')
+plt.show()`,
+      use:'Real-time use case: visually checking whether two variables &mdash; like advertising spend and sales &mdash; appear correlated before running a formal regression.'
+    },
+    {
+      id:'mpl-hist', title:'Histograms',
+      def:'Histograms show the distribution of a single numeric variable by grouping values into bins and drawing a bar for the count in each bin.',
+      syntax:`ax.hist(data, bins=n, color='...', edgecolor='...')`,
+      code:`ages = np.random.normal(35, 10, 1000)
+
+fig, ax = plt.subplots()
+ax.hist(ages, bins=20, color='#C9781E', edgecolor='#1C1B17')
+ax.set_xlabel('Age'); ax.set_ylabel('Frequency')
+plt.show()`,
+      use:'Real-time use case: checking whether customer ages in a dataset are roughly normally distributed or skewed before choosing a statistical test.'
+    },
+    {
+      id:'mpl-pie', title:'Pie Charts',
+      def:'Pie charts show each category\'s share of a whole as a wedge of a circle. Best used sparingly, for a small number of categories.',
+      syntax:`ax.pie(values, labels=labels, autopct='%1.1f%%')`,
+      code:`sizes = [45, 30, 25]
+labels = ['Chrome', 'Safari', 'Other']
+
+fig, ax = plt.subplots()
+ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=['#1C1B17','#C9781E','#928E80'])
+plt.show()`,
+      use:'Real-time use case: showing browser market share as three or four slices in a quick internal report.'
+    },
+    {
+      id:'mpl-labels', title:'Titles, Labels &amp; Legends',
+      def:'Text elements give a chart context: a title describes what it shows, axis labels describe the units, and a legend maps colors/styles back to series names.',
+      syntax:`ax.set_title('...')
+ax.set_xlabel('...'); ax.set_ylabel('...')
+ax.legend(loc='upper right')`,
+      code:`ax.plot(x, np.sin(x), label='sin')
+ax.plot(x, np.cos(x), label='cos')
+ax.set_title('Trig functions')
+ax.set_xlabel('x (radians)')
+ax.set_ylabel('value')
+ax.legend(loc='upper right')`,
+      use:'Real-time use case: adding clear labels and a legend before exporting a chart for a slide deck, so it\'s understandable without the surrounding code.'
+    },
+    {
+      id:'mpl-style', title:'Styling &amp; Colors',
+      def:'Line color, style, width, and marker shape are controlled through plot keyword arguments; global look-and-feel can be swapped with built-in style sheets.',
+      syntax:`ax.plot(x, y, color='#hex', linestyle='--', marker='o', linewidth=2)
+plt.style.use('seaborn-v0_8')   <span class="c1"># apply a built-in style</span>`,
+      code:`plt.style.use('ggplot')
+
+fig, ax = plt.subplots()
+ax.plot(x, y, color='#C9781E', linestyle='--', marker='o', markersize=4)
+plt.show()`,
+      use:'Real-time use case: applying a single consistent style sheet across every chart in a report so they all share the same visual identity.'
+    },
+    {
+      id:'mpl-grid', title:'Subplot Grids, Grid Lines &amp; Annotations',
+      def:'Grid lines improve readability of exact values; annotations point out and label specific features directly on the chart.',
+      syntax:`ax.grid(True, linestyle=':', alpha=0.5)
+ax.annotate('text', xy=(x, y), xytext=(x2, y2), arrowprops=dict(arrowstyle='->'))`,
+      code:`fig, ax = plt.subplots()
+ax.plot(x, y)
+ax.grid(True, linestyle=':', alpha=0.4)
+ax.annotate('peak', xy=(1.57, 1), xytext=(3, 0.8),
+            arrowprops=dict(arrowstyle='->', color='#C9781E'))`,
+      use:'Real-time use case: annotating the exact date of a sales spike directly on a line chart so viewers don\'t have to guess from the axis.'
+    },
+    {
+      id:'mpl-save', title:'Saving Figures',
+      def:'Figures are exported to image or vector files with <code>savefig()</code>, which should be called before <code>plt.show()</code> clears the figure from memory.',
+      syntax:`fig.savefig('chart.png', dpi=300, bbox_inches='tight')`,
+      code:`fig, ax = plt.subplots()
+ax.plot(x, y)
+fig.savefig('sine_wave.png', dpi=300, bbox_inches='tight')`,
+      use:'Real-time use case: automatically saving a high-resolution PNG of a chart at the end of a nightly reporting script for emailing to stakeholders.'
+    }
+  ]
+},
+{
+  id:'seaborn', name:'Seaborn', color:'#C9781E',
+  intro:'Seaborn is a statistical visualization library built directly on top of Matplotlib. It works natively with pandas DataFrames and provides high-level functions for common statistical chart types with attractive defaults.',
+  topics:[
+    {
+      id:'sns-intro', title:'Introduction to Seaborn',
+      def:'Seaborn simplifies creating informative statistical graphics: it accepts a DataFrame directly and column names as arguments, handling grouping, color mapping, and aggregation automatically &mdash; things that take several lines of raw Matplotlib code.',
+      syntax:'import seaborn as sns\nimport matplotlib.pyplot as plt',
+      code:`import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = sns.load_dataset('tips')   <span class="c1"># built-in sample dataset</span>
+print(df.head())`,
+      use:'Real-time use case: exploratory data analysis notebooks reach for seaborn first because a full statistical chart &mdash; grouped, colored, with a legend &mdash; is often a single function call.'
+    },
+    {
+      id:'sns-relational', title:'Relational Plots',
+      def:'<code>scatterplot</code> and <code>lineplot</code> visualize the relationship between two numeric variables, with built-in support for coloring or styling points by a third categorical column (<code>hue</code>).',
+      syntax:`sns.scatterplot(data=df, x='col1', y='col2', hue='category')
+sns.lineplot(data=df, x='col1', y='col2', hue='category')`,
+      code:`sns.scatterplot(data=df, x='total_bill', y='tip', hue='time')
+plt.show()
+
+sns.lineplot(data=df, x='day_index', y='sales', hue='region')
+plt.show()`,
+      use:'Real-time use case: plotting restaurant tip amount against total bill, colored by lunch vs. dinner, to spot whether tipping behavior differs by time of day.'
+    },
+    {
+      id:'sns-dist', title:'Distribution Plots',
+      def:'<code>histplot</code>, <code>kdeplot</code>, and <code>displot</code> visualize how a single numeric variable is distributed, with optional smoothing (KDE) or grouping.',
+      syntax:`sns.histplot(data=df, x='col', bins=n, kde=True)
+sns.kdeplot(data=df, x='col', hue='category')`,
+      code:`sns.histplot(data=df, x='total_bill', bins=20, kde=True, color='#C9781E')
+plt.show()
+
+sns.kdeplot(data=df, x='total_bill', hue='time', fill=True)
+plt.show()`,
+      use:'Real-time use case: comparing the smoothed distribution of order values between two customer segments to see which one skews higher.'
+    },
+    {
+      id:'sns-categorical', title:'Categorical Plots',
+      def:'A family of plots &mdash; <code>boxplot</code>, <code>violinplot</code>, <code>barplot</code>, <code>countplot</code>, <code>stripplot</code> &mdash; summarize a numeric variable across discrete categories.',
+      syntax:`sns.boxplot(data=df, x='category', y='value')
+sns.violinplot(data=df, x='category', y='value')
+sns.barplot(data=df, x='category', y='value')      <span class="c1"># shows mean + CI</span>
+sns.countplot(data=df, x='category')                <span class="c1"># frequency of each category</span>`,
+      code:`sns.boxplot(data=df, x='day', y='total_bill')
+plt.show()
+
+sns.countplot(data=df, x='day', hue='time')
+plt.show()`,
+      use:'Real-time use case: a boxplot comparing delivery times across five warehouses instantly shows both the median and the outliers per warehouse.'
+    },
+    {
+      id:'sns-regression', title:'Regression Plots',
+      def:'<code>regplot</code> and <code>lmplot</code> draw a scatter plot with an automatically fitted linear regression line and confidence interval overlaid.',
+      syntax:`sns.regplot(data=df, x='col1', y='col2')
+sns.lmplot(data=df, x='col1', y='col2', hue='category', col='category')`,
+      code:`sns.regplot(data=df, x='total_bill', y='tip', color='#1C1B17')
+plt.show()
+
+sns.lmplot(data=df, x='total_bill', y='tip', hue='sex')`,
+      use:'Real-time use case: quickly checking, with one function call, whether marketing spend is linearly correlated with weekly sales.'
+    },
+    {
+      id:'sns-heatmap', title:'Heatmaps',
+      def:'<code>heatmap</code> renders a 2D matrix (often a correlation matrix or pivot table) as a color-encoded grid, with optional numeric annotations in each cell.',
+      syntax:`sns.heatmap(matrix, annot=True, cmap='...', fmt='.2f')`,
+      code:`corr = df.select_dtypes('number').corr()
+sns.heatmap(corr, annot=True, cmap='YlOrBr', fmt='.2f')
+plt.show()`,
+      use:'Real-time use case: visualizing the correlation matrix of a dataset\'s numeric features before feature selection for a machine learning model.'
+    },
+    {
+      id:'sns-pairplot', title:'Pairplot',
+      def:'<code>pairplot</code> plots pairwise relationships across every numeric column in a DataFrame in a single grid &mdash; scatter plots off the diagonal, distributions on it.',
+      syntax:`sns.pairplot(df, hue='category')`,
+      code:`sns.pairplot(df, hue='species')
+plt.show()`,
+      use:'Real-time use case: getting an instant overview of how every numeric feature in the classic Iris dataset relates to every other one, colored by species, in one line.'
+    },
+    {
+      id:'sns-theme', title:'Themes &amp; Styling',
+      def:'Seaborn controls global figure aesthetics &mdash; background style, color palette, and font scale &mdash; through a small set of theme functions applied once at the top of a script.',
+      syntax:`sns.set_theme(style='whitegrid')
+sns.set_style('darkgrid')
+sns.set_palette('...')
+sns.color_palette('...', n_colors=n)`,
+      code:`sns.set_theme(style='whitegrid', palette='dark:#C9781E')
+
+sns.boxplot(data=df, x='day', y='total_bill')
+plt.show()`,
+      use:'Real-time use case: setting one consistent theme at the top of a notebook so every chart produced afterward shares the same clean look automatically.'
+    },
+    {
+      id:'sns-facet', title:'FacetGrid &amp; Multi-Plot Grids',
+      def:'<code>FacetGrid</code>, and the <code>col</code>/<code>row</code> arguments on functions like <code>relplot</code> and <code>catplot</code>, split a dataset into a grid of subplots by category &mdash; "small multiples" &mdash; automatically.',
+      syntax:`sns.relplot(data=df, x='col1', y='col2', col='category', kind='scatter')
+sns.catplot(data=df, x='cat1', y='val', col='cat2', kind='box')`,
+      code:`sns.relplot(data=df, x='total_bill', y='tip', col='time', hue='sex', kind='scatter')
+plt.show()
+
+sns.catplot(data=df, x='day', y='total_bill', col='sex', kind='box')`,
+      use:'Real-time use case: automatically generating one small scatter plot per region on a single figure to compare a metric across all regions at once.'
+    }
+  ]
+}
+];
+
+/* ======================================================================
+   RENDER
+   ====================================================================== */
+const navRoot = document.getElementById('navRoot');
+const content = document.getElementById('content');
+
+LIBS.forEach((lib, li) => {
+  // --- sidebar group ---
+  const group = document.createElement('div');
+  group.className = 'lib-group';
+  group.innerHTML = `
+    <button class="lib-toggle" aria-expanded="true" data-lib="${lib.id}">
+      <span class="label"><span class="dot" style="background:${lib.color}"></span>${lib.name}</span>
+      <span class="chev">▾</span>
+    </button>
+    <ul class="topic-list" id="list-${lib.id}">
+      ${lib.topics.map((t,i) => `<li data-search="${t.title.toLowerCase()}"><a href="#${t.id}">${String(i+1).padStart(2,'0')} · ${t.title}</a></li>`).join('')}
+    </ul>
+  `;
+  navRoot.appendChild(group);
+
+  // --- content: library heading ---
+  const heading = document.createElement('div');
+  heading.className = 'lib-heading';
+  heading.id = lib.id;
+  heading.innerHTML = `
+    <span class="kicker">Module 0${li+1}</span>
+    <h2>${lib.name}</h2>
+    <p>${lib.intro}</p>
+  `;
+  content.appendChild(heading);
+
+  // --- content: topics ---
+  lib.topics.forEach((t, ti) => {
+    const sec = document.createElement('section');
+    sec.className = 'topic';
+    sec.id = t.id;
+    sec.innerHTML = `
+      <span class="idx">${lib.name} / ${String(ti+1).padStart(2,'0')}</span>
+      <h3>${t.title}</h3>
+      <div class="block-label">Definition</div>
+      <p class="definition">${t.def}</p>
+      <div class="block-label">Syntax</div>
+      <div class="syntax">${t.syntax}</div>
+      <div class="block-label">Example</div>
+      <div class="code-wrap">
+        <button class="copy-btn" type="button">Copy</button>
+        <pre class="code"><code>${t.code}</code></pre>
+      </div>
+      <div class="block-label">Use Case</div>
+      <p class="usecase">${t.use}</p>
+    `;
+    content.appendChild(sec);
+  });
+});
+
+/* ======================================================================
+   INTERACTIONS
+   ====================================================================== */
+
+// --- sidebar collapse toggles ---
+document.querySelectorAll('.lib-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const list = document.getElementById('list-' + btn.dataset.lib);
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    list.classList.toggle('collapsed', expanded);
+  });
+});
+
+// --- copy to clipboard ---
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const codeEl = btn.nextElementSibling.querySelector('code');
+    const text = codeEl.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+    });
+  });
+});
+
+// --- mobile sidebar toggle ---
+const sidebar = document.getElementById('sidebar');
+const burgerBtn = document.getElementById('burgerBtn');
+const overlay = document.getElementById('overlay');
+function closeSidebar(){
+  sidebar.classList.remove('open');
+  burgerBtn.classList.remove('open');
+  overlay.classList.remove('show');
+}
+burgerBtn.addEventListener('click', () => {
+  const isOpen = sidebar.classList.toggle('open');
+  burgerBtn.classList.toggle('open', isOpen);
+  overlay.classList.toggle('show', isOpen);
+});
+overlay.addEventListener('click', closeSidebar);
+navRoot.addEventListener('click', (e) => {
+  if(e.target.tagName === 'A' && window.innerWidth <= 900) closeSidebar();
+});
+
+// --- search filter ---
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.topic-list li').forEach(li => {
+    li.style.display = li.dataset.search.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.topic-list').forEach(list => list.classList.remove('collapsed'));
+  document.querySelectorAll('.lib-toggle').forEach(b => b.setAttribute('aria-expanded','true'));
+});
+
+// --- scroll progress bar ---
+const progressBar = document.getElementById('progressBar');
+function updateProgress(){
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  progressBar.style.width = scrolled + '%';
+}
+window.addEventListener('scroll', updateProgress);
+
+// --- back to top ---
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  toTop.classList.toggle('show', window.scrollY > 600);
+});
+toTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+// --- scrollspy: highlight active nav link + fade-in topics ---
+const allNavLinks = document.querySelectorAll('.topic-list a');
+const sections = document.querySelectorAll('.topic');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('in-view');
+    }
+    if(entry.isIntersecting && entry.intersectionRatio > 0.15){
+      allNavLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.topic-list a[href="#${entry.target.id}"]`);
+      if(link) link.classList.add('active');
+    }
+  });
+}, {threshold:[0.15, 0.3], rootMargin:'-10% 0px -60% 0px'});
+sections.forEach(s => io.observe(s));
+
+// --- signature hero array field ---
+const field = document.getElementById('arrayField');
+const ROWS = 7, COLS = 6;
+for(let i=0;i<ROWS*COLS;i++){
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.textContent = i;
+  cell.style.animationDelay = (Math.random()*5).toFixed(2) + 's';
+  field.appendChild(cell);
+}
+</script>
+</body>
+</html>

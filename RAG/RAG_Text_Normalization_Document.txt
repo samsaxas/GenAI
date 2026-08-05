@@ -1,0 +1,64 @@
+Artificial Intelligence (AI)     is a brnch of computer science that
+focuses on building systems capable of performing tasks that normally
+require human intelligence. These tasks include learning, reasoning,
+problem solving, perception, language understanding, and decision
+making.
+
+Machine Learning (ML) is a subset of Artificial Intelligence. Instead of
+being explicitly programmed for every task, machine learning models
+learn patterns from historical data and use those patterns to make
+predictions or decisions. Common types of machine learning include
+supervised learning, unsupervised learning, and reinforcement learning.
+
+Deep Learning is a specialized subset of machine learning that uses
+artificial neural networks with multiple hidden layers. It has achieved
+state-of-the-art performance in applications such as image
+classification, speech recognition, natural language processing, and
+recommendation systems.
+
+Natural Language Processing (NLP) enables computers to understand,
+interpret, and generate human language. NLP tasks include text
+classification, sentiment analysis, named entity recognition, machine
+translation, question answering, summarization, and chatbot development.
+
+Data preprocessing is one of the most important stages of any machine
+learning pipeline. Raw text often contains uppercase letters,
+punctuation, emojis 😊, contractions like “can’t” or “it’s”, spelling
+mistakes such as machne learnng, and extra spaces. Before building a
+retrieval system, the text is typically converted to lowercase,
+contractions are expanded, unnecessary symbols are removed, spelling
+mistakes may be corrected, stopwords are removed, and words are
+lemmatized to their root form.
+
+Large documents are usually divided into smaller overlapping chunks
+because embedding an entire document at once is inefficient and may
+exceed model limits. Overlapping chunks preserve context across chunk
+boundaries and improve retrieval quality.
+
+Embedding models convert each text chunk into a dense numerical vector
+that captures semantic meaning. Similar pieces of text produce
+embeddings that are located close to one another in vector space, even
+if they do not contain exactly the same words.
+
+FAISS (Facebook AI Similarity Search) is a vector database library
+designed for efficient similarity search. It stores document embeddings
+in an index and performs nearest-neighbor search to quickly retrieve the
+most relevant chunks for a user’s query.
+
+When a user asks a question, the same embedding model converts the query
+into a vector. The vector database compares the query embedding with all
+stored document embeddings and retrieves the top-k most similar chunks.
+These retrieved chunks become the context for the Large Language Model.
+
+A Retrieval-Augmented Generation (RAG) pipeline combines retrieval and
+generation. First, relevant information is retrieved from the vector
+database. Then, the retrieved context and the user’s question are
+combined into a prompt. Finally, a Large Language Model such as Gemini
+generates a grounded and structured response based on the retrieved
+information.
+
+Example queries: 1. What is Machine Learning? 2. Why is text
+normalization important? 3. What is lemmatization? 4. Why are documents
+split into chunks? 5. What is FAISS used for? 6. What is the purpose of
+embeddings? 7. How does similarity search work? 8. Explain the RAG
+pipeline.

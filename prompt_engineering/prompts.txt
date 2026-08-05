@@ -1,0 +1,57 @@
+PROMPT 1:
+Act as a Senior Software Engineer, UI/UX Designer and Data Science Educator and create a website to teach numpy, pandas, matplotlib and seaborn.
+
+You are provided with pdfs and html web pages for reference. Use this resource only. Ensure all information is accurate and cover each and every topic.
+
+Create a fully responsive educational website using HTML, CSS and JavaScript that contains, to the point notes for numpy, pandas, matplotlib, seaborn.
+
+Include definitions, syntax, real-time use case with example.
+
+Include side panes, copy the code option. Also write the outputs and graphs for the codes.
+
+Instructions for UI/UX: 
+Use only 2-3 colours
+Do not use gradient colors 
+Add animations
+
+
+PROMPT 2:
+Change the title of the page. "Data Stack"
+
+Instead of:
+"Learn the Python data stack
+by reading real output."
+
+write "Python Notes for Data Science".
+
+
+PROMPT 3:
+The definitions are undefined. Write the best definition by yourself, if it is not mentioned in the files provided.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+task - 1
+create portfolio website for "whom"?
+
+build a website with complete notes of numpy, pandas, seaborn and matplotlib
+
+mention prompts in 1 document
+push to github and post in linkedin
+don't use gradient colours
+use only 2 or 3 colors
+add animations
+

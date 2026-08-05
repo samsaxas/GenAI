@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Science Foundations: NumPy, Pandas, Matplotlib, Seaborn</title>
+<style>
+    /* UI/UX Constraints: 3 Colors (Navy Blue, White, Light Gray), No Gradients */
+    :root {
+        --primary-color: #0F172A; /* Navy Blue */
+        --bg-color: #FFFFFF;      /* White */
+        --accent-color: #F1F5F9;  /* Light Gray */
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--primary-color);
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    header {
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    nav button {
+        background-color: transparent;
+        color: var(--bg-color);
+        border: 2px solid var(--bg-color);
+        padding: 0.5rem 1rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    nav button:hover, nav button.active {
+        background-color: var(--bg-color);
+        color: var(--primary-color);
+    }
+
+    .container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Side Pane */
+    aside {
+        width: 250px;
+        background-color: var(--accent-color);
+        padding: 2rem 1rem;
+        border-right: 2px solid var(--primary-color);
+        overflow-y: auto;
+    }
+
+    aside ul {
+        list-style: none;
+    }
+
+    aside li {
+        margin-bottom: 1rem;
+    }
+
+    aside a {
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: bold;
+        display: block;
+        padding: 0.5rem;
+        border: 2px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    aside a:hover {
+        border-bottom-color: var(--primary-color);
+    }
+
+    main {
+        flex: 1;
+        padding: 2rem 4rem;
+        overflow-y: auto;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; border-bottom: 3px solid var(--primary-color); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.8rem; margin: 2rem 0 1rem 0; }
+    h3 { font-size: 1.3rem; margin: 1.5rem 0 0.5rem 0; }
+    p { margin-bottom: 1rem; }
+
+    /* Code Blocks */
+    .code-container {
+        background-color: var(--accent-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 4px;
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding-top: 2rem;
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: var(--primary-color);
+        color: var(--bg-color);
+        border: none;
+        padding: 0.3rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .copy-btn:hover {
+        background-color: var(--bg-color);
+        color: var(--primary-color);
+        border-left: 1px solid var(--primary-color);
+        border-bottom: 1px solid var(--primary-color);
+    }
+
+    pre {
+        padding: 1rem;
+        overflow-x: auto;
+        font-family: monospace;
+        font-size: 0.95rem;
+    }
+
+    code {
+        font-family: monospace;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+    }
+
+    th, td {
+        border: 1px solid var(--primary-color);
+        padding: 0.5rem;
+        text-align: left;
+    }
+
+    th {
+        background-color: var(--accent-color);
+    }
+
+    @media (max-width: 768px) {
+        .container { flex-direction: column; }
+        aside { width: 100%; border-right: none; border-bottom: 2px solid var(--primary-color); height: auto; }
+        main { padding: 1rem; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h2>Data Science Guide</h2>
+    <nav>
+        <button class="tab-link active" onclick="openTab(event, 'numpy')">NumPy</button>
+        <button class="tab-link" onclick="openTab(event, 'pandas')">Pandas</button>
+        <button class="tab-link" onclick="openTab(event, 'matplotlib')">Matplotlib</button>
+        <button class="tab-link" onclick="openTab(event, 'seaborn')">Seaborn</button>
+    </nav>
+</header>
+
+<div class="container">
+    <aside id="sidebar">
+        <!-- Sidebar content updates based on active tab -->
+    </aside>
+
+    <main>
+        <!-- NumPy Content -->
+        <div id="numpy" class="tab-content active fade-in">
+            <h1>NumPy: The Absolute Basics</h1>
+            <p><strong>Definition:</strong> NumPy is the fundamental package for scientific computing in Python. It provides a multidimensional array object (<code>ndarray</code>) and an assortment of routines for fast operations on arrays without explicit looping.</p>
+            
+            <h2 id="np-creation">Array Creation</h2>
+            <p><strong>Use Case:</strong> Creating homogeneous n-dimensional arrays for vectorized mathematical operations.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>import numpy as np
+
+# Create an array from a regular Python list
+a = np.array([2, 3, 4])
+
+# Create an array full of zeros
+zeros_arr = np.zeros((3, 4))
+
+# Create sequences of numbers
+seq = np.arange(10, 30, 5) # array([10, 15, 20, 25])
+lin = np.linspace(0, 2, 9) # 9 numbers from 0 to 2</code></pre>
+            </div>
+
+            <h2 id="np-basics">Basic Operations & Broadcasting</h2>
+            <p><strong>Use Case:</strong> Performing element-wise arithmetic operations quickly using pre-compiled C code instead of Python loops.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>a = np.array([20, 30, 40, 50])
+b = np.arange(4) # array([0, 1, 2, 3])
+
+# Element-wise subtraction
+c = a - b # array([20, 29, 38, 47])
+
+# Broadcasting: operation between an array and a single number
+data = np.array([1.0, 2.0])
+result = data * 1.6 # array([1.6, 3.2])</code></pre>
+            </div>
+
+            <h2 id="np-shape">Shape Manipulation</h2>
+            <p><strong>Use Case:</strong> Reshaping arrays to match required dimensions for matrix multiplication or machine learning inputs.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>a = np.array([0, 1, 2, 3, 4, 5])
+
+# Change shape without changing data
+b = a.reshape(3, 2)
+# [[0 1]
+#  [2 3]
+#  [4 5]]
+
+# Flatten the array
+flat = b.ravel()
+
+# Transpose a matrix
+transposed = b.T</code></pre>
+            </div>
+
+            <h2 id="np-indexing">Indexing and Slicing</h2>
+            <p><strong>Use Case:</strong> Extracting specific sections of an array or filtering values based on specific conditions.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>a = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+
+# Slicing
+b1 = a[0, :] # array([1, 2, 3, 4])
+
+# Boolean Indexing (Filtering)
+five_up = a[a >= 5]
+# array([ 5, 6, 7, 8, 9, 10, 11, 12])</code></pre>
+            </div>
+        </div>
+
+        <!-- Pandas Content -->
+        <div id="pandas" class="tab-content fade-in">
+            <h1>Pandas</h1>
+            <p><strong>Definition:</strong> pandas is a Python package providing fast, flexible, and expressive data structures (like <code>DataFrame</code> and <code>Series</code>) designed to make working with "relational" or "labeled" data easy and intuitive.</p>
+            
+            <h2 id="pd-dataframe">DataFrame Creation</h2>
+            <p><strong>Use Case:</strong> Loading and representing 2-dimensional tabular data from dictionaries, arrays, or files.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>import pandas as pd
+import numpy as np
+
+# Constructing DataFrame from a dictionary
+d = {"col1": [1, 2], "col2": [3, 4]}
+df = pd.DataFrame(data=d)
+
+# Constructing DataFrame from numpy ndarray
+df2 = pd.DataFrame(
+    np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
+    columns=["a", "b", "c"]
+)</code></pre>
+            </div>
+
+            <h2 id="pd-missing">Handling Missing Data</h2>
+            <p><strong>Use Case:</strong> Cleaning messy, real-world datasets by finding and filling or dropping NA/NaN values.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>df = pd.DataFrame({
+    "name": ["Alfred", "Batman", "Catwoman"],
+    "toy": [np.nan, "Batmobile", "Bullwhip"]
+})
+
+# Detect missing values
+mask = df.isna()
+
+# Drop rows where at least one element is missing
+df_clean = df.dropna()
+
+# Fill missing values
+df_filled = df.fillna("Unknown")</code></pre>
+            </div>
+
+            <h2 id="pd-groupby">Grouping Data (GroupBy)</h2>
+            <p><strong>Use Case:</strong> Performing split-apply-combine operations to aggregate data based on categories.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>df = pd.DataFrame({
+    "Animal": ["Falcon", "Falcon", "Parrot", "Parrot"],
+    "Max Speed": [380.0, 370.0, 24.0, 26.0],
+})
+
+# Group by animal and calculate the mean speed
+mean_speed = df.groupby(["Animal"]).mean()
+#         Max Speed
+# Animal           
+# Falcon      375.0
+# Parrot       25.0</code></pre>
+            </div>
+
+            <h2 id="pd-merge">Merging & Joining</h2>
+            <p><strong>Use Case:</strong> Combining multiple datasets together using database-style joins.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>df1 = pd.DataFrame({"key": ["K0", "K1"], "A": ["A0", "A1"]})
+df2 = pd.DataFrame({"key": ["K0", "K1"], "B": ["B0", "B1"]})
+
+# Join DataFrames using their indexes or keys
+merged_df = df1.merge(df2, on="key", how="inner")</code></pre>
+            </div>
+        </div>
+
+        <!-- Matplotlib Content -->
+        <div id="matplotlib" class="tab-content fade-in">
+            <h1>Matplotlib</h1>
+            <p><strong>Definition:</strong> Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations. It uses a Figure and Axes object-oriented hierarchy.</p>
+            
+            <h2 id="plt-quickstart">Quick Start: Figures and Axes</h2>
+            <p><strong>Use Case:</strong> Creating a canvas (Figure) and plotting areas (Axes) to display data graphically using the explicit object-oriented interface.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>import matplotlib.pyplot as plt
+import numpy as np
+
+# Create a figure containing a single Axes
+fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+
+# Plot some data on the Axes
+x = np.linspace(0, 2, 100)
+ax.plot(x, x, label='linear')
+ax.plot(x, x**2, label='quadratic')
+
+# Show the figure
+plt.show()</code></pre>
+            </div>
+
+            <h2 id="plt-styling">Styling and Labelling</h2>
+            <p><strong>Use Case:</strong> Customizing line colors, widths, markers, titles, and legends to make plots readable and professional.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>fig, ax = plt.subplots(figsize=(5, 2.7))
+
+# Plot with custom color, linewidth, and linestyle
+ax.plot(x, x**2, color='blue', linewidth=3, linestyle='--', label='data')
+
+# Set labels and title
+ax.set_xlabel('x label')
+ax.set_ylabel('y label')
+ax.set_title("Simple Plot")
+
+# Add a legend
+ax.legend()</code></pre>
+            </div>
+
+            <h2 id="plt-multiple">Multiple Axes (Subplots)</h2>
+            <p><strong>Use Case:</strong> Displaying multiple plots side-by-side or in complex mosaic grids for comparative analysis.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code># Create a figure with a 2x2 grid of Axes
+fig, axs = plt.subplots(2, 2, figsize=(4, 3), layout='constrained')
+
+# Plotting on specific subplots
+axs[0, 0].plot([1, 2], [1, 2])
+axs[0, 0].set_title("Top Left")
+
+# Using Subplot Mosaic for complex layouts
+fig_m, axd = plt.subplot_mosaic([['left', 'right_top'],
+                                 ['left', 'right_bottom']])
+axd['left'].set_title('Main View')</code></pre>
+            </div>
+
+            <h2 id="plt-scales">Scales, Ticks, and Colorbars</h2>
+            <p><strong>Use Case:</strong> Visualizing exponential data using log scales or representing a third dimension using colormaps.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>fig, ax = plt.subplots(figsize=(5, 2.7))
+
+# Set y-axis to logarithmic scale
+ax.set_yscale('log')
+
+# Color mapped data (pcolormesh)
+X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
+Z = np.exp(-X**2 - Y**2)
+pc = ax.pcolormesh(X, Y, Z, cmap='viridis')
+
+# Add a colorbar
+fig.colorbar(pc, ax=ax)</code></pre>
+            </div>
+        </div>
+
+        <!-- Seaborn Content -->
+        <div id="seaborn" class="tab-content fade-in">
+            <h1>Seaborn</h1>
+            <p><strong>Definition:</strong> Seaborn provides a high-level interface for drawing attractive and informative statistical graphics, integrating closely with pandas data structures.</p>
+            
+            <h2 id="sns-relational">Relational Plots</h2>
+            <p><strong>Use Case:</strong> Showing the relationship between two variables with semantic mappings (hue, size, style) for subsets.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code>import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Figure-level interface for drawing scatter or line plots
+sns.relplot(
+    data=df,
+    x="total_bill", y="tip", 
+    hue="smoker", style="time", 
+    kind="scatter"
+)
+plt.show()</code></pre>
+            </div>
+
+            <h2 id="sns-categorical">Categorical Plots</h2>
+            <p><strong>Use Case:</strong> Visualizing the distribution of data across different levels of categorical variables (box plots, bar plots, violin plots).</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code># Draw a box plot to show distributions with respect to categories
+sns.boxplot(
+    data=df, 
+    x="day", y="total_bill", 
+    hue="smoker", 
+    palette="deep"
+)
+
+# Draw a violin plot (combines boxplot and kernel density estimation)
+sns.violinplot(
+    data=df, 
+    x="day", y="total_bill", 
+    hue="sex", split=True, inner="quart"
+)</code></pre>
+            </div>
+
+            <h2 id="sns-distributions">Distribution Plots</h2>
+            <p><strong>Use Case:</strong> Representing the distribution of one or more variables using histograms or kernel density estimates.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code># Plot univariate or bivariate histograms
+sns.histplot(
+    data=df, 
+    x="flipper_length_mm", 
+    hue="species", 
+    multiple="stack"
+)
+
+# Kernel Density Estimate (KDE) plot
+sns.kdeplot(
+    data=df, 
+    x="total_bill", 
+    hue="time", 
+    fill=True, common_norm=False, alpha=.5
+)</code></pre>
+            </div>
+
+            <h2 id="sns-matrix">Matrix Plots</h2>
+            <p><strong>Use Case:</strong> Plotting rectangular data as color-encoded matrices (heatmaps) to evaluate clustering or correlations.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+<pre><code># Plot rectangular data as a color-encoded matrix
+sns.heatmap(
+    data=correlation_matrix, 
+    annot=True, 
+    fmt=".2f", 
+    cmap="crest"
+)
+
+# Hierarchically-clustered heatmap
+sns.clustermap(data, metric="euclidean", standard_scale=1)</code></pre>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Navigation Menus logic
+    const navMenus = {
+        'numpy': [
+            { id: 'np-creation', text: 'Array Creation' },
+            { id: 'np-basics', text: 'Basic Operations' },
+            { id: 'np-shape', text: 'Shape Manipulation' },
+            { id: 'np-indexing', text: 'Indexing & Slicing' }
+        ],
+        'pandas': [
+            { id: 'pd-dataframe', text: 'DataFrame Creation' },
+            { id: 'pd-missing', text: 'Missing Data' },
+            { id: 'pd-groupby', text: 'Grouping Data' },
+            { id: 'pd-merge', text: 'Merging & Joining' }
+        ],
+        'matplotlib': [
+            { id: 'plt-quickstart', text: 'Quick Start' },
+            { id: 'plt-styling', text: 'Styling & Labelling' },
+            { id: 'plt-multiple', text: 'Multiple Axes' },
+            { id: 'plt-scales', text: 'Scales & Colorbars' }
+        ],
+        'seaborn': [
+            { id: 'sns-relational', text: 'Relational Plots' },
+            { id: 'sns-categorical', text: 'Categorical Plots' },
+            { id: 'sns-distributions', text: 'Distribution Plots' },
+            { id: 'sns-matrix', text: 'Matrix Plots' }
+        ]
+    };
+
+    function populateSidebar(tabName) {
+        const sidebar = document.getElementById('sidebar');
+        const links = navMenus[tabName];
+        let ul = '<ul>';
+        links.forEach(link => {
+            ul += `<li><a href="#${link.id}">${link.text}</a></li>`;
+        });
+        ul += '</ul>';
+        sidebar.innerHTML = ul;
+    }
+
+    function openTab(evt, tabName) {
+        // Hide all tab content
+        const tabcontent = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+            // small trick to re-trigger animation
+            tabcontent[i].classList.remove("fade-in");
+        }
+
+        // Remove active class from all buttons
+        const tablinks = document.getElementsByClassName("tab-link");
+        for (let i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+
+        // Show the current tab and add active class to button
+        const selectedTab = document.getElementById(tabName);
+        selectedTab.classList.add("active");
+        
+        // Force reflow to restart animation
+        void selectedTab.offsetWidth;
+        selectedTab.classList.add("fade-in");
+        
+        evt.currentTarget.classList.add("active");
+
+        // Update Sidebar
+        populateSidebar(tabName);
+    }
+
+    function copyCode(btn) {
+        const codeElement = btn.nextElementSibling;
+        const codeText = codeElement.innerText;
+        
+        navigator.clipboard.writeText(codeText).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = 'Copied!';
+            setTimeout(() => {
+                btn.innerText = originalText;
+            }, 2000);
+        }).catch(err => {
+            console.error("Failed to copy code: ", err);
+        });
+    }
+
+    // Initialize sidebar for the default active tab
+    populateSidebar('numpy');
+</script>
+
+</body>
+</html>
